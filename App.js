@@ -10,6 +10,7 @@ import {
   IconButton,
   TextInput,
 } from "react-native-paper";
+import uuid from "react-native-uuid";
 
 export default function App() {
   const [lists, setLists] = useState([]);
@@ -52,7 +53,7 @@ export default function App() {
   }, []);
 
   const AddATodo = async (message) => {
-    let tempID = self.crypto.randomUUID();
+    let tempID = uuid.v4();
     let tempLists = lists;
     tempLists.push({ id: tempID, name: message });
     await AsyncStorage.setItem("List", JSON.stringify(tempLists));
