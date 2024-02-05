@@ -108,7 +108,7 @@ export default function App() {
         }
         style={styles.input}
         value={formState.name}
-        placeholder="Name"
+        placeholder="Name place"
       />
       <TextInput
         onChange={(event) =>
