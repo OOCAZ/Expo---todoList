@@ -9,6 +9,8 @@ import {
   Title,
   IconButton,
   TextInput,
+  ActivityIndicator,
+  MD2Colors,
 } from "react-native-paper";
 import uuid from "react-native-uuid";
 import { generateClient } from "aws-amplify/api";
@@ -26,6 +28,7 @@ export default function App() {
   const [names, setNames] = useState("");
   const [descriptions, setDescriptions] = useState("");
   const [todos, setTodos] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const [lists, setLists] = useState([]);
   const [areAdding, setAreAdding] = useState(false);
@@ -43,12 +46,14 @@ export default function App() {
   };
 
   async function fetchTodos() {
+    setLoading(true);
     try {
       const todoData = await client.graphql({
         query: listTodos,
       });
       const todos = todoData.data.listTodos.items;
       setTodos(todos);
+      setLoading(false);
     } catch (err) {
       console.log("error fetching todos");
     }
@@ -65,6 +70,7 @@ export default function App() {
   };
 
   const deleteItem = async (id) => {
+    setLoading(true);
     try {
       await client.graphql({
         query: deleteTodo,
@@ -75,6 +81,7 @@ export default function App() {
         },
       });
       fetchTodos();
+      setLoading(false);
     } catch (err) {
       console.log("error removing todo:", err);
     }
@@ -98,6 +105,8 @@ export default function App() {
       const todo = { name: names, description: descriptions };
       setTodos([todo, ...todos]);
       setFormState(initialState);
+      setDescriptions("");
+      setNames("");
       await client.graphql({
         query: createTodo,
         variables: {
@@ -130,26 +139,38 @@ export default function App() {
             Create Todo
           </Button>
         </View>
-        <View style={styles.cards}>
-          {todos.map((todo, index) => (
-            <Card key={todo.id ? todo.id : index} style={styles.innerCards}>
-              <Card.Content>
-                <Title>{todo.name}</Title>
-                <View style={styles.todo}>
-                  <Text style={styles.todoDescription}>{todo.description}</Text>
-                </View>
-              </Card.Content>
-              <Card.Actions>
-                <IconButton
-                  icon="delete"
-                  onPress={() => {
-                    deleteItem(todo.id);
-                  }}
-                />
-              </Card.Actions>
-            </Card>
-          ))}
-        </View>
+        {loading ? (
+          <ActivityIndicator
+            size="large"
+            animating={true}
+            style={{ margin: 20 }}
+          />
+        ) : (
+          <View>
+            <View style={styles.cards}>
+              {todos.map((todo, index) => (
+                <Card key={todo.id ? todo.id : index} style={styles.innerCards}>
+                  <Card.Content>
+                    <Title>{todo.name}</Title>
+                    <View style={styles.todo}>
+                      <Text style={styles.todoDescription}>
+                        {todo.description}
+                      </Text>
+                    </View>
+                  </Card.Content>
+                  <Card.Actions>
+                    <IconButton
+                      icon="delete"
+                      onPress={() => {
+                        deleteItem(todo.id);
+                      }}
+                    />
+                  </Card.Actions>
+                </Card>
+              ))}
+            </View>
+          </View>
+        )}
       </ScrollView>
     </View>
   );
