@@ -23,6 +23,8 @@ const client = generateClient();
 
 export default function App() {
   const [formState, setFormState] = useState(initialState);
+  const [names, setNames] = useState("");
+  const [descriptions, setDescriptions] = useState("");
   const [todos, setTodos] = useState([]);
 
   const [lists, setLists] = useState([]);
@@ -92,8 +94,16 @@ export default function App() {
 
   async function addTodo() {
     try {
-      if (!formState.name || !formState.description) return;
-      const todo = { ...formState };
+      console.log("made it in here");
+      console.log(
+        "Name: " +
+          JSON.stringify(names) +
+          "Description: " +
+          JSON.stringify(descriptions)
+      );
+      if (names === "" || descriptions === "") return;
+      const todo = { name: names, description: descriptions };
+      console.log("made it" + JSON.stringify(todo));
       setTodos([...todos, todo]);
       setFormState(initialState);
       await client.graphql({
@@ -113,19 +123,15 @@ export default function App() {
         <View style={styles.header}>
           <Text style={styles.heading}>Amplify Todos</Text>
           <TextInput
-            onChange={(event) =>
-              setFormState({ ...formState, name: event.target.value })
-            }
+            onChangeText={(text) => setNames(text)}
             style={styles.input}
-            value={formState.name}
-            placeholder="Name place"
+            value={names}
+            placeholder="Name"
           />
           <TextInput
-            onChange={(event) =>
-              setFormState({ ...formState, description: event.target.value })
-            }
+            onChangeText={(text) => setDescriptions(text)}
             style={styles.input}
-            value={formState.description}
+            value={descriptions}
             placeholder="Description"
           />
           <Button style={styles.button} onPress={addTodo} mode="contained">
