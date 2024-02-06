@@ -94,17 +94,9 @@ export default function App() {
 
   async function addTodo() {
     try {
-      console.log("made it in here");
-      console.log(
-        "Name: " +
-          JSON.stringify(names) +
-          "Description: " +
-          JSON.stringify(descriptions)
-      );
       if (names === "" || descriptions === "") return;
       const todo = { name: names, description: descriptions };
-      console.log("made it" + JSON.stringify(todo));
-      setTodos([...todos, todo]);
+      setTodos([todo, ...todos]);
       setFormState(initialState);
       await client.graphql({
         query: createTodo,
