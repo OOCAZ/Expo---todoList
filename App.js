@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import { StyleSheet, View, Modal } from "react-native";
+import { StyleSheet, View, Modal, ScrollView } from "react-native";
 import {
   Text,
   Button,
@@ -12,10 +12,12 @@ import {
 } from "react-native-paper";
 import uuid from "react-native-uuid";
 import { generateClient } from "aws-amplify/api";
-
-import { createTodo } from "./src/graphql/mutations";
+import config from "./src/amplifyconfiguration.json";
+import { Amplify } from "aws-amplify";
+import { createTodo, deleteTodo } from "./src/graphql/mutations";
 import { listTodos } from "./src/graphql/queries";
 
+Amplify.configure(config);
 const initialState = { name: "", description: "" };
 const client = generateClient();
 
@@ -60,14 +62,20 @@ export default function App() {
     }
   };
 
-  const deleteItem = async (element) => {
-    let tempLists = lists;
-    tempLists.pop([element]);
-    setLists(tempLists);
-    if (tempLists.length === 0) {
-      setEmpty(true);
+  const deleteItem = async (id) => {
+    try {
+      await client.graphql({
+        query: deleteTodo,
+        variables: {
+          input: {
+            id: id,
+          },
+        },
+      });
+      fetchTodos();
+    } catch (err) {
+      console.log("error removing todo:", err);
     }
-    await AsyncStorage.setItem("List", JSON.stringify(tempLists));
   };
 
   useEffect(() => {
@@ -101,32 +109,50 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>Amplify Todos</Text>
-      <TextInput
-        onChange={(event) =>
-          setFormState({ ...formState, name: event.target.value })
-        }
-        style={styles.input}
-        value={formState.name}
-        placeholder="Name place"
-      />
-      <TextInput
-        onChange={(event) =>
-          setFormState({ ...formState, description: event.target.value })
-        }
-        style={styles.input}
-        value={formState.description}
-        placeholder="Description"
-      />
-      <Button style={styles.button} onPress={addTodo} mode="contained">
-        Create Todo
-      </Button>
-      {todos.map((todo, index) => (
-        <View key={todo.id ? todo.id : index} style={styles.todo}>
-          <Text style={styles.todoName}>{todo.name}</Text>
-          <Text style={styles.todoDescription}>{todo.description}</Text>
+      <ScrollView style={{ width: "100%" }}>
+        <View style={styles.header}>
+          <Text style={styles.heading}>Amplify Todos</Text>
+          <TextInput
+            onChange={(event) =>
+              setFormState({ ...formState, name: event.target.value })
+            }
+            style={styles.input}
+            value={formState.name}
+            placeholder="Name place"
+          />
+          <TextInput
+            onChange={(event) =>
+              setFormState({ ...formState, description: event.target.value })
+            }
+            style={styles.input}
+            value={formState.description}
+            placeholder="Description"
+          />
+          <Button style={styles.button} onPress={addTodo} mode="contained">
+            Create Todo
+          </Button>
         </View>
-      ))}
+        <View style={styles.cards}>
+          {todos.map((todo, index) => (
+            <Card key={todo.id ? todo.id : index} style={styles.innerCards}>
+              <Card.Content>
+                <Title>{todo.name}</Title>
+                <View style={styles.todo}>
+                  <Text style={styles.todoDescription}>{todo.description}</Text>
+                </View>
+              </Card.Content>
+              <Card.Actions>
+                <IconButton
+                  icon="delete"
+                  onPress={() => {
+                    deleteItem(todo.id);
+                  }}
+                />
+              </Card.Actions>
+            </Card>
+          ))}
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -149,4 +175,8 @@ const styles = StyleSheet.create({
   },
   todoName: { fontSize: 20, fontWeight: "bold" },
   todoDescription: { marginBottom: 0 },
+  heading: { fontSize: 30, margin: 20 },
+  cards: { margin: 20 },
+  innerCards: { margin: 10, minWidth: 300 },
+  header: { marginHorizontal: 10 },
 });
