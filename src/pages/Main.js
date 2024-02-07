@@ -18,12 +18,13 @@ import config from "../amplifyconfiguration.json";
 import { Amplify } from "aws-amplify";
 import { createTodo, deleteTodo } from "../graphql/mutations";
 import { listTodos } from "../graphql/queries";
+import { DrawerActions } from "@react-navigation/native";
 
 Amplify.configure(config);
 const initialState = { name: "", description: "" };
 const client = generateClient();
 
-export default function Main() {
+export default function Main({ navigation }) {
   const [formState, setFormState] = useState(initialState);
   const [names, setNames] = useState("");
   const [descriptions, setDescriptions] = useState("");
@@ -122,7 +123,20 @@ export default function Main() {
     <View style={styles.container}>
       <ScrollView style={{ width: "100%" }}>
         <View style={styles.header}>
-          <Text style={styles.heading}>Amplify Todos</Text>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "row",
+              alignItems: "center",
+              marginTop: 20,
+            }}
+          >
+            <IconButton
+              icon="menu"
+              onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
+            />
+            <Text style={styles.heading}>Amplify Todos</Text>
+          </View>
           <TextInput
             onChangeText={(text) => setNames(text)}
             style={styles.input}
