@@ -19,12 +19,14 @@ import { Amplify } from "aws-amplify";
 import { createTodo, deleteTodo } from "../graphql/mutations";
 import { listTodos } from "../graphql/queries";
 import { DrawerActions } from "@react-navigation/native";
+import { withAuthenticator } from "@aws-amplify/ui-react-native";
+import Auth from "aws-amplify";
 
 Amplify.configure(config);
 const initialState = { name: "", description: "" };
 const client = generateClient();
 
-export default function Main({ navigation }) {
+function Main({ navigation }) {
   const [formState, setFormState] = useState(initialState);
   const [names, setNames] = useState("");
   const [descriptions, setDescriptions] = useState("");
@@ -98,6 +100,14 @@ export default function Main({ navigation }) {
     let tempLists = lists;
     tempLists.push({ id: tempID, name: message });
     await AsyncStorage.setItem("List", JSON.stringify(tempLists));
+  };
+
+  const signOut = async () => {
+    try {
+      await Auth.signOut({ global: true });
+    } catch (error) {
+      console.log("error signing out: ", error);
+    }
   };
 
   async function addTodo() {
@@ -185,10 +195,15 @@ export default function Main({ navigation }) {
             </View>
           </View>
         )}
+        <Button mode="contained" onPress={() => signOut()}>
+          Sign Out
+        </Button>
       </ScrollView>
     </View>
   );
 }
+
+export default withAuthenticator(Main);
 
 const styles = StyleSheet.create({
   container: {
