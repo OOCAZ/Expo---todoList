@@ -20,7 +20,8 @@ import { createTodo, deleteTodo } from "../graphql/mutations";
 import { listTodos } from "../graphql/queries";
 import { DrawerActions } from "@react-navigation/native";
 import { withAuthenticator } from "@aws-amplify/ui-react-native";
-import Auth from "aws-amplify";
+import { Auth } from "aws-amplify";
+import { signOut } from "aws-amplify/auth";
 
 Amplify.configure(config);
 const initialState = { name: "", description: "" };
@@ -102,13 +103,13 @@ function Main({ navigation }) {
     await AsyncStorage.setItem("List", JSON.stringify(tempLists));
   };
 
-  const signOut = async () => {
+  async function handleSignOut() {
     try {
-      await Auth.signOut({ global: true });
+      await signOut();
     } catch (error) {
       console.log("error signing out: ", error);
     }
-  };
+  }
 
   async function addTodo() {
     try {
@@ -195,7 +196,11 @@ function Main({ navigation }) {
             </View>
           </View>
         )}
-        <Button mode="contained" onPress={() => signOut()}>
+        <Button
+          stlye={{ marginBottom: 50 }}
+          mode="contained"
+          onPress={() => handleSignOut()}
+        >
           Sign Out
         </Button>
       </ScrollView>
