@@ -196,19 +196,17 @@ function Main({ navigation }) {
             </View>
           </View>
         )}
-        <Button
-          stlye={{ marginBottom: 50 }}
-          mode="contained"
-          onPress={() => handleSignOut()}
-        >
-          Sign Out
-        </Button>
+        <View style={{ marginBottom: 50, marginHorizontal: 20 }}>
+          <Button mode="contained" onPress={() => handleSignOut()}>
+            Sign Out
+          </Button>
+        </View>
       </ScrollView>
     </View>
   );
 }
 
-export default withAuthenticator(Main);
+export default withAuthenticator(Main, true);
 
 const styles = StyleSheet.create({
   container: {
