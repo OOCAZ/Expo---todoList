@@ -13,8 +13,8 @@ import {
 import uuid from "react-native-uuid";
 import { generateClient } from "aws-amplify/api";
 
-import { createTodo } from "./src/graphql/mutations";
-import { listTodos } from "./src/graphql/queries";
+import { createTodo } from "../graphql/mutations";
+import { listTodos } from "../graphql/queries";
 
 const initialState = { name: "", description: "" };
 const client = generateClient();

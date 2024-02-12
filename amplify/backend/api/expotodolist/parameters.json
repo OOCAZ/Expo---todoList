@@ -1,5 +1,6 @@
 {
   "AppSyncApiName": "expotodolist",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
-  "DynamoDBEnableServerSideEncryption": false
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthModeLastUpdated": "2024-02-12T20:33:30.141Z"
 }

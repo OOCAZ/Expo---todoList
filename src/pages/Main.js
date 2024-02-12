@@ -15,17 +15,19 @@ import {
 import uuid from "react-native-uuid";
 import { generateClient } from "aws-amplify/api";
 import config from "../amplifyconfiguration.json";
-import { Amplify } from "aws-amplify";
 import { createTodo, deleteTodo } from "../graphql/mutations";
 import { listTodos } from "../graphql/queries";
 import { DrawerActions } from "@react-navigation/native";
 import { withAuthenticator } from "@aws-amplify/ui-react-native";
-import { Auth } from "aws-amplify";
+import { Amplify } from "aws-amplify";
+import amplifyconfig from "../amplifyconfiguration.json";
 import { signOut } from "aws-amplify/auth";
+import { useAuthenticator } from "@aws-amplify/ui-react-native";
+Amplify.configure(amplifyconfig);
 
-Amplify.configure(config);
-const initialState = { name: "", description: "" };
-const client = generateClient();
+const client = generateClient({ authMode: "apiKey" });
+
+const initialState = { description: "", name: "" };
 
 function Main({ navigation }) {
   const [formState, setFormState] = useState(initialState);
@@ -54,12 +56,14 @@ function Main({ navigation }) {
     try {
       const todoData = await client.graphql({
         query: listTodos,
+        authMode: "apiKey",
       });
       const todos = todoData.data.listTodos.items;
       setTodos(todos);
       setLoading(false);
     } catch (err) {
       console.log("error fetching todos");
+      console.log(err);
     }
   }
 
@@ -78,6 +82,7 @@ function Main({ navigation }) {
     try {
       await client.graphql({
         query: deleteTodo,
+        authMode: "apiKey",
         variables: {
           input: {
             id: id,
@@ -121,6 +126,7 @@ function Main({ navigation }) {
       setNames("");
       await client.graphql({
         query: createTodo,
+        authMode: "apiKey",
         variables: {
           input: todo,
         },
@@ -206,7 +212,7 @@ function Main({ navigation }) {
   );
 }
 
-export default withAuthenticator(Main, true);
+export default withAuthenticator(Main);
 
 const styles = StyleSheet.create({
   container: {

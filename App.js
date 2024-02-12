@@ -1,8 +1,8 @@
 import { NavigationContainer } from "@react-navigation/native";
 import "react-native-gesture-handler";
-
-import Main from "./src/pages/Main";
 import { createDrawerNavigator } from "@react-navigation/drawer";
+import Main from "./src/pages/Main";
+import Home from "./src/pages/Home";
 
 const Drawer = createDrawerNavigator();
 
